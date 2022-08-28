@@ -45,12 +45,28 @@ const setupHiDPICanvas = function (canvas) {
   return ctx;
 }
 
+const fmtNum = function (num, width) {
+    let str = `${num}`;
+    while (str.length < width) {
+        str = '0' + str;
+    }
+    return str;
+}
+
 const canvasClock = (elem) => {
     elem.classList.add("canvasClock");
     const canvas = document.createElement("canvas");
     elem.appendChild(canvas);
     canvas.width = canvas.height = 256;
     const ctx = setupHiDPICanvas(canvas);
+
+    const font = window.getComputedStyle(canvas).getPropertyValue('font');
+    console.log(font);
+    (()=>{
+        const elem = document.createElement("div");
+	    document.body.appendChild(elem);
+	    elem.innerText = font;
+    })();
 
     const drawClock = (hours, minutes, seconds) => {
         ctx.beginPath();
@@ -88,6 +104,18 @@ const canvasClock = (elem) => {
         ctx.closePath();
         ctx.fillStyle = "black";
         ctx.fill();
+
+        const timeString = `${fmtNum(hours,2)}:${fmtNum(minutes,2)}:${fmtNum(seconds,2)}`;
+        ctx.font = font;
+        /*const metrics = ctx.measureText(timeString);
+        ctx.fillText(timeString, 128 - metrics.width/2, 128+90, 256);*/
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = "black";
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1.5;
+        ctx.strokeText(timeString, 128, 256-2, 256);
+        ctx.fillText(timeString, 128, 256-2 /*128+90+2*/, 256);
     };
 
     new Promise(async () => {
@@ -95,17 +123,26 @@ const canvasClock = (elem) => {
             await new Promise(requestAnimationFrame);
             let now = new Date();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawClock(now.getHours() % 12, now.getMinutes(), now.getSeconds());
+            drawClock(now.getHours(), now.getMinutes(), now.getSeconds());
         } while (1);
     });
 };
 
-const outputDiv = document.getElementById("outputDiv");
+const jsMain = function () {
+    const outputDiv = document.getElementById("outputDiv");
 
-const appendNewComponent = (componentAttacher) => {
-    const component = document.createElement("div");
-    outputDiv.appendChild(component);
-    return componentAttacher(component);
-};
+    const appendNewComponent = (componentAttacher) => {
+        const component = document.createElement("div");
+        outputDiv.appendChild(component);
+        return componentAttacher(component);
+    };
 
-[textClock, canvasClock/*, ledClock, svgClock*/].forEach(appendNewComponent);
+    [textClock, canvasClock/*, ledClock, svgClock*/].forEach(appendNewComponent);
+}
+ 
+if (document.readyState === 'loading') {  // Loading hasn't finished yet
+    document.addEventListener('DOMContentLoaded', jsMain);
+} else {  // `DOMContentLoaded` has already fired
+    jsMain();
+}
+// window.setTimeout(jsMain,1000);
