@@ -1,0 +1,28 @@
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+	font-family: 'Palatino Linotype', Palatino, 'TeX Gyre Pagella', 'URW Palladio L', 'Book Antiqua', serif;
+}
+
+#outputDiv {
+    display: flex;
+}
+
+#outputDiv > div {
+    width: 256px;
+    height: 256px;
+}
+
+.textClock {
+    color: red;
+    background-color: white;
+}
+
+.canvasClock > canvas {
+    width: 100%;
+    height: 100%;
+    font-size: 2rem;
+}
